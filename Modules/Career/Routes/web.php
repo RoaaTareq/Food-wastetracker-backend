@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Facades\Route;
+use Modules\Career\Http\Controllers\CareerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -11,6 +13,8 @@
 |
 */
 
-Route::prefix('career')->group(function() {
-    Route::get('/', 'CareerController@index');
-});
+
+    Route::get('/career', 'CareerController@index');
+    
+    Route::get('/career/create', 'CareerController@create')->name('career.create');
+

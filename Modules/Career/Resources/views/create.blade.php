@@ -182,7 +182,7 @@
       <!-- partial:../../partials/_sidebar.html -->
     @include('career::layouts.menu')
       <!-- partial -->
-    @include('career::getallcareer')
+    @include('career::create')
       <!-- main-panel ends -->
     </div>
     <!-- page-body-wrapper ends -->
