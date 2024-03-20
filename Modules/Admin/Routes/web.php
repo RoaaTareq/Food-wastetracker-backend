@@ -15,4 +15,5 @@ use Modules\Admin\Http\Controllers\AdminController;
 
 
        Route::get('/admin', 'AdminController@index')->name('admin.index');
+       Route::get('/admin/create', 'AdminController@create')->name('admin.create');
 
