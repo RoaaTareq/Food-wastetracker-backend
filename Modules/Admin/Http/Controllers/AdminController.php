@@ -23,7 +23,7 @@ class AdminController extends Controller
      */
     public function create()
     {
-        return view('Admin::create');
+        return view('admin::create');
     }
 
     /**

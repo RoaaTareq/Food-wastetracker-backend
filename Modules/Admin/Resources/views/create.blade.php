@@ -179,7 +179,7 @@
       <!-- partial:../../partials/_sidebar.html -->
     @include('admin::layouts.menu')
       <!-- partial -->
-    @include('admin::Alladmin')
+    @include('admin::layouts.Formcreate')
       <!-- main-panel ends -->
     </div>
     <!-- page-body-wrapper ends -->
