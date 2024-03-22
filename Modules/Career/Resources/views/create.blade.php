@@ -1,12 +1,12 @@
 
 
 
-@include('career::layouts.partial')
+@include('admin::layouts.partial')
 
 <body>
   <div class="container-scroller">
     <!-- partial:../../partials/_navbar.html -->
-   @include('career::layouts.Nav')
+   @include('admin::layouts.nav')
     <!-- partial -->
     <div class="container-fluid page-body-wrapper">
       <!-- partial:../../partials/_settings-panel.html -->
@@ -180,9 +180,9 @@
       </div>
       <!-- partial -->
       <!-- partial:../../partials/_sidebar.html -->
-    @include('career::layouts.menu')
+    @include('admin::layouts.menu')
       <!-- partial -->
-    @include('career::create')
+    @include('career::layouts.Formcareer')
       <!-- main-panel ends -->
     </div>
     <!-- page-body-wrapper ends -->

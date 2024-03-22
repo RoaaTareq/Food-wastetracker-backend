@@ -14,7 +14,7 @@ use Modules\Career\Http\Controllers\CareerController;
 */
 
 
-    Route::get('/career', 'CareerController@index');
+Route::get('/career', 'CareerController@index')->name('career.index');
     
-    Route::get('/career/create', 'CareerController@create')->name('career.create');
+Route::get('/career/create', 'CareerController@create')->name('career.create');
 
