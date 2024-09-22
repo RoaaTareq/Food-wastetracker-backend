@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ItemController extends Controller
@@ -35,7 +34,6 @@ class ItemController extends Controller
             'name' => $request->name,
             'category_id' => $request->category_id,
             'description' => $request->description,
-            'created_by' => Auth::id(),  // Store the employee ID who created the item
         ]);
 
         return response()->json(['message' => 'Item created successfully', 'item' => $item], 201);

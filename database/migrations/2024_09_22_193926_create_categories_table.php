@@ -9,12 +9,10 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('food_categories', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->text('description')->nullable();
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -24,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('food_categories');
+        Schema::dropIfExists('categories');
     }
 };

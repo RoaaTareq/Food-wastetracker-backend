@@ -22,13 +22,17 @@ use App\Http\Controllers\FoodWasteEntryController;
 */
 
 // Auth routes
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register/admin', [AuthController::class, 'registerAdmin']);
+Route::post('/register/hospital-owner', [AuthController::class, 'registerHospitalOwner']);
+Route::post('/register/employee', [AuthController::class, 'registerEmployee']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::get('/me', [AuthController::class, 'me']);
 
 // Protected routes (JWT required)
 Route::middleware('auth:api')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
+    // Route::post('/logout', [AuthController::class, 'logout']);
+    // Route::get('/me', [AuthController::class, 'me']);
     
     // Employee routes (for authenticated users)
     Route::prefix('employees')->group(function () {
@@ -64,13 +68,18 @@ Route::middleware(['auth:api', 'admin'])->group(function () {
     });
 
     
-    Route::prefix('categories')->group(function () {
-        Route::get('/', [CategoryController::class, 'index']);
-        Route::post('/', [CategoryController::class, 'store']);
-        Route::get('/{id}', [CategoryController::class, 'show']);
-        Route::put('/{id}', [CategoryController::class, 'update']);
-        Route::delete('/{id}', [CategoryController::class, 'destroy']);
-    });
+    // Route::prefix('categories')->group(function () {
+    //     Route::get('/', [CategoryController::class, 'index']);
+    //     Route::post('/', [CategoryController::class, 'store']);
+    //     Route::get('/{id}', [CategoryController::class, 'show']);
+    //     Route::put('/{id}', [CategoryController::class, 'update']);
+    //     Route::delete('/{id}', [CategoryController::class, 'destroy']);
+    // });
+Route::get('/categories', [CategoryController::class, 'index']);      // Get all categories
+Route::post('/categories', [CategoryController::class, 'store']);     // Create new category
+Route::get('/categories/{id}', [CategoryController::class, 'show']);  // Get a specific category
+Route::put('/categories/{id}', [CategoryController::class, 'update']); // Update a category
+Route::delete('/categories/{id}', [CategoryController::class, 'destroy']); 
 
     // Item routes
     Route::prefix('items')->group(function () {

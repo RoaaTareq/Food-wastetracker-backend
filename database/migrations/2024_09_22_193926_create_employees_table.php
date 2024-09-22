@@ -9,21 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('hospitals', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->text('address')->nullable();
-            $table->string('phone', 50)->nullable();
+        Schema::create('employees', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('hospitals');
+        Schema::dropIfExists('employees');
     }
 };

@@ -47,7 +47,7 @@ class Kernel extends HttpKernel
             'api' => [
                 'throttle:api',
                 \Illuminate\Routing\Middleware\SubstituteBindings::class,
-                \Tymon\JWTAuth\Http\Middleware\Authenticate::class, // JWT middleware for protected routes only
+               // JWT middleware for protected routes only
             
             ],
         
