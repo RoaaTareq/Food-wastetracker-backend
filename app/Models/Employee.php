@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Hospital extends Model
+class Employee extends Model
 {
-    protected $fillable = ['name', 'phone', 'email', 'password'];
+    protected $fillable = ['hospital_id', 'name', 'phone', 'email', 'password'];
 
-    public function employees()
+    public function hospital()
     {
-        return $this->hasMany(Employee::class);
+        return $this->belongsTo(Hospital::class);
     }
 
     public function wasteFoods()

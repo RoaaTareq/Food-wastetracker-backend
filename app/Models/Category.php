@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    use HasFactory;
+    protected $fillable = ['name'];
 
-    // Explicitly specify the table name
-    protected $table = 'food_categories';
-
-    // Allow mass assignment for these fields
-    protected $fillable = ['name', 'description'];
+    public function wasteFoods()
+    {
+        return $this->hasMany(WasteFood::class);
+    }
 }
+

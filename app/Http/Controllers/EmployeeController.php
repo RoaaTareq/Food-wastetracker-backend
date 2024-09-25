@@ -2,151 +2,127 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Employee;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends Controller
 {
-    // List all employees of the hospital or all employees if admin
-    public function index()
+    /**
+     * Display a listing of all employees for a specific hospital.
+     */
+    public function index($hospital_id)
     {
-        // Get the authenticated user
-        $user = Auth::user();
-
-        // If the user is an admin, show all employees
-        if ($user->role === 'admin') {
-            $employees = User::where('role', 'employee')->get();
-        } 
-        // If the user is a hospital owner, show only employees from their hospital
-        elseif ($user->role === 'hospital_owner') {
-            $employees = User::where('hospital_id', $user->hospital_id)->where('role', 'employee')->get();
-        } 
-        else {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        return response()->json($employees, 200);
+        $employees = Employee::where('hospital_id', $hospital_id)->get();
+        return response()->json($employees);
     }
 
-    // Store a new employee (hospital owner or admin adds a new employee)
+    /**
+     * Store a newly created employee in storage.
+     */
     public function store(Request $request)
     {
-        // Get the authenticated user
-        $user = Auth::user();
-
-        // Ensure the user is a hospital owner or admin
-        if ($user->role !== 'hospital_owner' && $user->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        // Validate the request
-        $validator = Validator::make($request->all(), [
+        // Validate the request data
+        $request->validate([
             'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'hospital_id' => 'required_if:role,admin|exists:hospitals,id',
+            'hospital_id' => 'required|exists:hospitals,id'
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
-        // Determine which hospital to assign the employee to
-        $hospitalId = ($user->role === 'hospital_owner') ? $user->hospital_id : $request->hospital_id;
-
-        // Create the new employee and assign the hospital_id
-        $employee = User::create([
+        // Create a user for the employee with the 'employee' role
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'employee',
-            'hospital_id' => $hospitalId,  // Assign the appropriate hospital ID
+            'role' => 'employee'  // Assign employee role
         ]);
 
-        return response()->json(['message' => 'Employee created successfully', 'employee' => $employee], 201);
+        // Create the employee record and link it to the user and hospital
+        $employee = Employee::create([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'hospital_id' => $request->hospital_id,
+            'user_id' => $user->id  // Link user with employee
+        ]);
+
+        return response()->json([
+            'message' => 'Employee created successfully',
+            'employee' => $employee
+        ], 201);
     }
 
-    // Show a single employee (details of an employee)
+    /**
+     * Display the specified employee.
+     */
     public function show($id)
     {
-        $user = Auth::user();
+        $employee = Employee::find($id);
 
-        // Fetch the employee
-        $employee = User::where('role', 'employee')->find($id);
-
-        // Check if the user is authorized to view the employee
-        if ($user->role === 'admin' || ($user->role === 'hospital_owner' && $employee->hospital_id === $user->hospital_id)) {
-            if (!$employee) {
-                return response()->json(['message' => 'Employee not found'], 404);
-            }
-
-            return response()->json($employee, 200);
+        if (!$employee) {
+            return response()->json(['error' => 'Employee not found'], 404);
         }
 
-        return response()->json(['message' => 'Unauthorized'], 403);
+        return response()->json($employee);
     }
 
-    // Update an employee's information
+    /**
+     * Update the specified employee in storage.
+     */
     public function update(Request $request, $id)
     {
-        $user = Auth::user();
+        // Validate the request data
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+        ]);
 
         // Find the employee
-        $employee = User::where('role', 'employee')->find($id);
-
-        // Ensure the user is authorized to update the employee
-        if ($user->role === 'admin' || ($user->role === 'hospital_owner' && $employee->hospital_id === $user->hospital_id)) {
-            if (!$employee) {
-                return response()->json(['message' => 'Employee not found'], 404);
-            }
-
-            // Validate the request
-            $validator = Validator::make($request->all(), [
-                'name' => 'sometimes|required|string|max:255',
-                'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
-                'password' => 'sometimes|required|string|min:8|confirmed',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json($validator->errors(), 422);
-            }
-
-            // Update the employee's data
-            $employee->update([
-                'name' => $request->name ?? $employee->name,
-                'email' => $request->email ?? $employee->email,
-                'password' => isset($request->password) ? Hash::make($request->password) : $employee->password,
-            ]);
-
-            return response()->json(['message' => 'Employee updated successfully', 'employee' => $employee], 200);
+        $employee = Employee::find($id);
+        if (!$employee) {
+            return response()->json(['error' => 'Employee not found'], 404);
         }
 
-        return response()->json(['message' => 'Unauthorized'], 403);
+        // Update employee details
+        $employee->update([
+            'name' => $request->name,
+            'phone' => $request->phone,
+        ]);
+
+        // Update the corresponding user details
+        $employee->user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        return response()->json([
+            'message' => 'Employee updated successfully',
+            'employee' => $employee
+        ]);
     }
 
-    // Delete an employee
+    /**
+     * Remove the specified employee from storage.
+     */
     public function destroy($id)
     {
-        $user = Auth::user();
+        $employee = Employee::find($id);
 
-        // Find the employee
-        $employee = User::where('role', 'employee')->find($id);
-
-        // Ensure the user is authorized to delete the employee
-        if ($user->role === 'admin' || ($user->role === 'hospital_owner' && $employee->hospital_id === $user->hospital_id)) {
-            if (!$employee) {
-                return response()->json(['message' => 'Employee not found'], 404);
-            }
-
-            // Delete the employee
-            $employee->delete();
-
-            return response()->json(['message' => 'Employee deleted successfully'], 200);
+        if (!$employee) {
+            return response()->json(['error' => 'Employee not found'], 404);
         }
 
-        return response()->json(['message' => 'Unauthorized'], 403);
+        // Delete the corresponding user
+        $employee->user->delete();
+
+        // Delete the employee
+        $employee->delete();
+
+        return response()->json([
+            'message' => 'Employee deleted successfully'
+        ]);
     }
 }

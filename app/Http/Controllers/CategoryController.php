@@ -2,79 +2,98 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Models\Category;
 
 class CategoryController extends Controller
 {
-    // Get all categories
+    /**
+     * Display a listing of all categories.
+     */
     public function index()
     {
         $categories = Category::all();
         return response()->json($categories);
     }
 
-    // Create a new category
+    /**
+     * Store a newly created category in storage.
+     */
     public function store(Request $request)
     {
+        // Validate the request data
         $request->validate([
-            'name' => 'required|unique:food_categories|max:255', // Using food_categories here
-            'description' => 'nullable|string',
+            'name' => 'required|string|max:255|unique:categories',
         ]);
 
+        // Create a new category
         $category = Category::create([
             'name' => $request->name,
-            'description' => $request->description,
         ]);
 
-        return response()->json(['message' => 'Category created successfully', 'category' => $category], 201);
+        return response()->json([
+            'message' => 'Category created successfully',
+            'category' => $category
+        ], 201);
     }
 
-    // Get a specific category by ID
+    /**
+     * Display the specified category by ID.
+     */
     public function show($id)
     {
         $category = Category::find($id);
 
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return response()->json(['error' => 'Category not found'], 404);
         }
 
         return response()->json($category);
     }
 
-    // Update a category by ID
+    /**
+     * Update the specified category in storage.
+     */
     public function update(Request $request, $id)
     {
+        // Validate the request data
+        $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,' . $id,
+        ]);
+
+        // Find the category
         $category = Category::find($id);
 
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return response()->json(['error' => 'Category not found'], 404);
         }
 
-        $request->validate([
-            'name' => 'required|max:255|unique:food_categories,name,' . $category->id, // Using food_categories here
-            'description' => 'nullable|string',
-        ]);
+        // Update the category name
+        $category->name = $request->name;
+        $category->save();
 
-        $category->update([
-            'name' => $request->name,
-            'description' => $request->description,
+        return response()->json([
+            'message' => 'Category updated successfully',
+            'category' => $category
         ]);
-
-        return response()->json(['message' => 'Category updated successfully', 'category' => $category], 200);
     }
 
-    // Delete a category by ID
+    /**
+     * Remove the specified category from storage.
+     */
     public function destroy($id)
     {
         $category = Category::find($id);
 
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return response()->json(['error' => 'Category not found'], 404);
         }
 
+        // Delete the category
         $category->delete();
 
-        return response()->json(['message' => 'Category deleted successfully'], 200);
+        return response()->json([
+            'message' => 'Category deleted successfully'
+        ]);
     }
 }
